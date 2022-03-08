@@ -1,5 +1,6 @@
 # EmoteRBLX
 
+```lua
 --[[
     Commands:
     /e help -- shows all emote names
@@ -8,6 +9,7 @@
     /e save -- saves equipped emotes
     /e load -- loads last save file
 ]]
+``
 
 Put main script in autoexe
 ```Lua
