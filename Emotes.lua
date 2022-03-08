@@ -20,11 +20,20 @@ while true do
     end
 end
 
+table.sort(emotesTable, function(a, b)
+    return a[1] < b[1]
+end)
+
+
 local RobloxEmotes = {}
 local EmoteChoices = {}
+local RealNames = {}
+
 for _, emote in ipairs(emotesTable) do
     RobloxEmotes[string.split(emote[1], "-")[1]] = {emote[2]}
     table.insert(EmoteChoices, string.split(emote[1], "-")[1])
+
+    RealNames[emote[1]] = { emote[2] }
 end
 
-return RobloxEmotes, EmoteChoices
+return RobloxEmotes, EmoteChoices, RealNames
