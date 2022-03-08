@@ -1,5 +1,5 @@
 # EmoteRBLX
-
+```
 local Emotes, EmoteChoices = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
 
 for i,v in pairs(EmoteChoices) do
@@ -22,3 +22,5 @@ end
       
   end
 ]]
+
+```
