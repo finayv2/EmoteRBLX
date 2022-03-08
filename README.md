@@ -5,7 +5,7 @@
     Commands:
     /e help -- shows all emote names
     /e replace [slot] [emote name]
-    /e autoload [bool]
+    /e autoload
     /e save -- saves equipped emotes
     /e load -- loads last save file
 ]]
