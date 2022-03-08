@@ -1,10 +1,20 @@
 # EmoteRBLX
 
+--[[
+    Commands:
+    /e help -- shows all emote names
+    /e replace [slot] [emote name]
+    /e autoload [bool]
+    /e save -- saves equipped emotes
+    /e load -- loads last save file
+]]
+
 Put main script in autoexe
 ```Lua
-
+loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Main.lua'))();
 ```
-API Emote below
+
+API Emote
 ```Lua
 local Emotes, EmoteChoices = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
 
