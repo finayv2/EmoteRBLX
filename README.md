@@ -1,6 +1,9 @@
 # EmoteRBLX
 
+Put main script in autoexe
+```Lua
 
+```
 API Emote below
 ```Lua
 local Emotes, EmoteChoices = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
