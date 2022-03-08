@@ -19,7 +19,7 @@ end
   game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(Emotes)
   
   for i,v in pairs(Emotes)
-      
+      print(unpack(v))
   end
 ]]
 
