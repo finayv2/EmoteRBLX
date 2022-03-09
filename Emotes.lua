@@ -24,16 +24,37 @@ table.sort(emotesTable, function(a, b)
     return a[1] < b[1]
 end)
 
+local ReturnedWrong;
+function FixString(text)
+    local Converted = string.split(text, "-")[1]
+    if Converted then
+        text = string.split(text, "-")[1]
+    end
+    Converted = string.sub(text,string.len(text))
+    if Converted == " " then
+        text = text:sub(1, #text - 1)
+        ReturnedWrong = FixString(text)
+    else
+        return text
+    end
+end
 
 local RobloxEmotes = {}
 local EmoteChoices = {}
 local RealNames = {}
 
 for _, emote in ipairs(emotesTable) do
-    RobloxEmotes[string.split(emote[1], "-")[1]] = {emote[2]}
-    table.insert(EmoteChoices, string.split(emote[1], "-")[1])
-
-    RealNames[emote[1]] = { emote[2] }
+    
+    if FixString(emote[1]) == nil then
+        RobloxEmotes[ReturnedWrong] = {emote[2]}
+        table.insert(EmoteChoices, ReturnedWrong)
+    else
+        RobloxEmotes[FixString(emote[1])] = {emote[2]}
+        table.insert(EmoteChoices, FixString(emote[1]))
+    end
+    
+    RealNames[emote[1]] = {emote[2]}
 end
+
 
 return RobloxEmotes, EmoteChoices, RealNames
