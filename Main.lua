@@ -1,5 +1,8 @@
-local Emotes, EmoteChoices = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
-local EquippedEmotes = {"Godlike", "Top Rock", "Quiet Waves", "Side to Side", "Line Dance", "Shuffle", "Hero Landing", "Monkey"}
+local Emotes, EmoteChoices, RealNames = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
+--local EquippedEmotes = {"Godlike", "Top Rock", "Quiet Waves", "Side to Side", "Line Dance", "Shuffle", "Hero Landing", "Monkey"}
+local EquippedEmotes = {nil, nil, nil, nil, nil, nil, nil, nil}
+
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer.CharacterAdded
 
 function CreateMessage(Text, Type)
     local Colour = {
@@ -16,27 +19,32 @@ function CreateMessage(Text, Type)
     })
 end
 
-
 if isfolder("Emote-System") then
     local AutoLoad = readfile("Emote-System/AutoLoad.txt")
-    print(AutoLoad)
     if AutoLoad == "true" then
         CreateMessage("Autoloaded saved emotes!", "Success")
         EquippedEmotes = game:service'HttpService':JSONDecode(readfile("Emote-System/EmoteSave.txt"))
+        return
+    end
+
+    for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
+        table.insert(EquippedEmotes, t.Name)
+    end
+else
+    for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
+        table.insert(EquippedEmotes, t.Name)
     end
 end
 
-repeat wait() until game:IsLoaded()
 game.Players.LocalPlayer.CharacterAdded:Connect(function()
     repeat wait() until game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
 
     if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").HumanoidDescription then
         repeat wait() until typeof(Emotes) == "table"
 
-        game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(Emotes)
+        game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(RealNames)
         game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
     end
-
 end)
 
 local Commands = {
@@ -51,13 +59,12 @@ local Commands = {
             end
 
 
-            for i,v in pairs(EquippedEmotes) do
-                if i == tonumber(args[3]) then
-                    EquippedEmotes[i] = goodtext
-                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
-                    CreateMessage("Changed ".. args[3] .." To '"..goodtext.."'!", "Success")
-                end
-            end
+
+            EquippedEmotes[tonumber(args[3])] = goodtext
+
+            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(RealNames)
+            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
+            CreateMessage("Changed ".. args[3] .." To '"..goodtext.."'!", "Success")
         end)
     end;
 
@@ -85,13 +92,14 @@ local Commands = {
     end;
 
     ["autoload"] = function(args)
-        if not args[3] == "false" and args[3] == "true" then
-            CreateMessage("Please enter 'true' or 'false' for AutoLoad!", "Info")
-            return
-        end
 
-        writefile("Emote-System/AutoLoad.txt", args[3])
-        CreateMessage("Set AutoLoad to ".. args[3] .."!", "Success")
+        if readfile("Emote-System/AutoLoad.txt") == "true" then
+            writefile("Emote-System/AutoLoad.txt", "false")
+            CreateMessage("Set AutoLoad to False!", "Success")
+        else
+            writefile("Emote-System/AutoLoad.txt", "true")
+            CreateMessage("Set AutoLoad to True!", "Success")
+        end
     end
 }
 
@@ -101,4 +109,14 @@ game.Players.LocalPlayer.Chatted:Connect(function(msg)
     if args[1] == "/e" then
         Commands[string.lower(args[2])](args, msg)
     end
+end)
+
+
+-- // credit to kiriot 
+local m = getmetatable(require(game:GetService("Chat"):WaitForChild("ClientChatModules"):WaitForChild("CommandModules"):WaitForChild("Util")))
+old = hookfunction(m.SendSystemMessageToSelf, function(self, msg, ...)
+    if msg == "You can't use that Emote." then
+		return
+	end
+	return old(self, msg, ...)
 end)
