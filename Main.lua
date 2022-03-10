@@ -2,7 +2,7 @@ local Emotes, EmoteChoices, RealNames = loadstring(game:HttpGet('https://raw.git
 --local EquippedEmotes = {"Godlike", "Top Rock", "Quiet Waves", "Side to Side", "Line Dance", "Shuffle", "Hero Landing", "Monkey"}
 local EquippedEmotes = {nil, nil, nil, nil, nil, nil, nil, nil}
 
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer.CharacterAdded
+game.Loaded:Wait()
 
 function CreateMessage(Text, Type)
     local Colour = {
@@ -19,30 +19,32 @@ function CreateMessage(Text, Type)
     })
 end
 
-if isfolder("Emote-System") then
-    local AutoLoad = readfile("Emote-System/AutoLoad.txt")
-    if AutoLoad == "true" then
-        CreateMessage("Autoloaded saved emotes!", "Success")
-        EquippedEmotes = game:service'HttpService':JSONDecode(readfile("Emote-System/EmoteSave.txt"))
-        return
-    end
-
-    for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
-        table.insert(EquippedEmotes, t.Name)
-    end
-else
-    for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
-        table.insert(EquippedEmotes, t.Name)
-    end
-end
 
 game.Players.LocalPlayer.CharacterAdded:Connect(function()
     repeat wait() until game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
 
+    if isfolder("Emote-System") then
+        local AutoLoad = readfile("Emote-System/AutoLoad.txt")
+        if AutoLoad == "true" then
+            CreateMessage("Autoloaded saved emotes!", "Success")
+            EquippedEmotes = game:service'HttpService':JSONDecode(readfile("Emote-System/EmoteSave.txt"))
+            return
+        end
+        
+        for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
+            table.insert(EquippedEmotes, t.Name)
+        end
+    
+    else
+        for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
+            table.insert(EquippedEmotes, t.Name)
+        end
+    end
+
     if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").HumanoidDescription then
         repeat wait() until typeof(Emotes) == "table"
 
-        game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(RealNames)
+        game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(Emotes)
         game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
     end
 end)
@@ -59,10 +61,9 @@ local Commands = {
             end
 
 
-
             EquippedEmotes[tonumber(args[3])] = goodtext
 
-            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(RealNames)
+            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(Emotes)
             game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
             CreateMessage("Changed ".. args[3] .." To '"..goodtext.."'!", "Success")
         end)
