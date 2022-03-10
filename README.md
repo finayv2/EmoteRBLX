@@ -9,6 +9,8 @@
     /e save -- saves equipped emotes
     /e load -- loads last save file
 ]]
+
+example for /e replace 3 Tree
 ```
 
 Put main script in autoexe
