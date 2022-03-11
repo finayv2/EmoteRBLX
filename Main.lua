@@ -28,11 +28,10 @@ game.Players.LocalPlayer.CharacterAdded:Connect(function()
         if AutoLoad == "true" then
             CreateMessage("Autoloaded saved emotes!", "Success")
             EquippedEmotes = game:service'HttpService':JSONDecode(readfile("Emote-System/EmoteSave.txt"))
-            return
-        end
-        
-        for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
-            table.insert(EquippedEmotes, t.Name)
+        elseif AutoLoad == "false" then
+            for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
+                table.insert(EquippedEmotes, t.Name)
+            end
         end
     
     else
@@ -53,13 +52,11 @@ local Commands = {
     ["replace"] = function(args, msg)
         msg:gsub('(%a*)%d(.*)', function(dnc, Arg4)
             local goodtext = Arg4:sub(2)
-            --goodtext = string.gsub(" "..Arg4, "%W%l", string.upper):sub(2)
 
             if not table.find(EmoteChoices, goodtext) then
                 CreateMessage("Failed to Find '".. goodtext .."'!", "Failed")
                 return
             end
-
 
             EquippedEmotes[tonumber(args[3])] = goodtext
 
