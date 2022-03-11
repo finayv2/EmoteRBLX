@@ -1,5 +1,5 @@
 # EmoteRBLX
-
+tons of credit goes to https://v3rmillion.net/member.php?action=profile&uid=445047
 ```Lua
 --[[
     Commands:
