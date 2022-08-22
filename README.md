@@ -1,16 +1,27 @@
 # EmoteRBLX
 tons of credit goes to https://v3rmillion.net/member.php?action=profile&uid=445047
 ```Lua
---[[
-    Commands:
-    /e help -- shows all emote names
-    /e replace [slot] [emote name]
-    /e autoload
-    /e save -- saves equipped emotes
-    /e load -- loads last save file
-]]
+[[
+            Animation Changer finay#1197
 
-example for /e replace 3 Tree
+            Usage:
+
+            /e replace [Number on Emotes Wheel] [Emote name]
+            Ex: /e replace 3 Tree
+
+            /e play [Emote name]
+            Ex: /e replace Shrug
+
+            /e save -- Saves your current emote wheel 
+
+            /e load -- Loads your save
+
+            /e help -- prints out all emotes
+
+            /e autoload [boolen] (true or false) -- will auto load your save every time you reset
+
+            /e refresh -- refreshes emote wheel
+        ]]
 ```
 
 Put main script in autoexe
