@@ -1,111 +1,196 @@
+repeat task.wait() until game:GetService("Players").LocalPlayer
+if not game:GetService("StarterPlayer").UserEmotesEnabled then return end
+
+local HttpService = game:GetService("HttpService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+
 local Emotes, EmoteChoices, RealNames = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
---local EquippedEmotes = {"Godlike", "Top Rock", "Quiet Waves", "Side to Side", "Line Dance", "Shuffle", "Hero Landing", "Monkey"}
-local EquippedEmotes = {nil, nil, nil, nil, nil, nil, nil, nil}
+local EquippedEmotes = {
+    {Slot = 1, Name = ""},
+    {Slot = 2, Name = ""},
+    {Slot = 3, Name = ""},
+    {Slot = 4, Name = ""},
+    {Slot = 5, Name = ""},
+    {Slot = 6, Name = ""},
+    {Slot = 7, Name = ""},
+    {Slot = 8, Name = ""},
+}
 
-game.Loaded:Wait()
 
-function CreateMessage(Text, Type)
-    local Colour = {
-        ["Success"] = Color3.fromRGB(65,255,144);
-        ["Info"] = Color3.fromRGB(226, 250, 6);
-        ["Failed"] = Color3.fromRGB(255, 78, 65);
-    }
 
+local Message = {["Success"] = Color3.fromRGB(65,255,144); ["Info"] = Color3.fromRGB(226, 250, 6); ["Failed"] = Color3.fromRGB(255, 78, 65)}
+function Message:Send(Text, Type)
     game.StarterGui:SetCore("ChatMakeSystemMessage", {
         Text = "[Emote System]: "..Text;
         Font = Enum.Font.Cartoon;
-        Color = Colour[Type];
+        Color = Message[Type];
         FontSize = Enum.FontSize.Size96;	
     })
 end
 
+local Caches = {
+    EmoteSettings = {};
+}
 
-game.Players.LocalPlayer.CharacterAdded:Connect(function()
-    repeat wait() until game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+local Autoload, SettingsE;
+function Caches:CheckSettings()
+    if Caches.EmoteSettings['Autoload'] then
+        SettingsE = HttpService:JSONDecode(readfile("Emote-System/EmoteSave.txt")) or EquippedEmotes
 
-    if isfolder("Emote-System") then
-        local AutoLoad = readfile("Emote-System/AutoLoad.txt")
-        if AutoLoad == "true" then
-            CreateMessage("Autoloaded saved emotes!", "Success")
-            EquippedEmotes = game:service'HttpService':JSONDecode(readfile("Emote-System/EmoteSave.txt"))
-        elseif AutoLoad == "false" then
-            for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
-                table.insert(EquippedEmotes, t.Name)
-            end
+        return Caches.EmoteSettings['Autoload'], SettingsE
+    end
+
+    if isfolder('Emote-System') then
+        Autoload = readfile("Emote-System/AutoLoad.txt") or false
+        SettingsE = HttpService:JSONDecode(readfile("Emote-System/EmoteSave.txt")) or EquippedEmotes
+
+        EquippedEmotes = SettingsE
+
+        Caches.EmoteSettings['Autoload'] = Autoload
+        return Caches.EmoteSettings['Autoload'], SettingsE
+    end
+    return nil, nil
+end
+
+function Caches:ChangeEmote(Humanoid, Pos, Emoticon)
+    if not Humanoid then return end
+    if not Pos then return end
+    if not Emoticon then return end
+
+    for i,v in pairs(EquippedEmotes) do
+        if v.Slot == tonumber(Pos) then
+            EquippedEmotes[i].Name = Emoticon
         end
+    end
+
+    Humanoid:SetEmotes(Emotes)
+    Humanoid:SetEquippedEmotes(EquippedEmotes)
+end
+
+
+local AutoLoad, SettingsEmotes, Humanoid;
+local function CharacterLoaded(Character)
+    AutoLoad, SettingsEmotes = Caches:CheckSettings()
+
+    Humanoid = Character:WaitForChild("Humanoid")
     
+    if Autoload then
+        EquippedEmotes = SettingsEmotes
+        Message:Send("Autoloaded saved emotes!", "Success")
     else
-        for _, t in pairs(game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:GetEquippedEmotes()) do
-            table.insert(EquippedEmotes, t.Name)
+        if Humanoid['HumanoidDescription'] then
+            EquippedEmotes = Humanoid.HumanoidDescription:GetEquippedEmotes()
         end
     end
-
-    if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").HumanoidDescription then
-        repeat wait() until typeof(Emotes) == "table"
-
-        game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(Emotes)
-        game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
+    
+    if Humanoid['HumanoidDescription'] then
+        for _,v in pairs(EquippedEmotes) do
+            Caches:ChangeEmote(Humanoid.HumanoidDescription, v.Slot, v.Name)
+            _,v = nil;
+        end
     end
-end)
+end
 
+
+local CorrectText;
 local Commands = {
     ["replace"] = function(args, msg)
-        msg:gsub('(%a*)%d(.*)', function(dnc, Arg4)
-            local goodtext = Arg4:sub(2)
+        msg:gsub('(%a*)%d(.*)', function(Text1, Text2)
+            CorrectText = Text2:sub(2)
 
-            if not table.find(EmoteChoices, goodtext) then
-                CreateMessage("Failed to Find '".. goodtext .."'!", "Failed")
+            if not table.find(EmoteChoices, CorrectText) then
+                Message:Send("Failed to Find '".. CorrectText .."'!", "Failed")
                 return
             end
 
-            EquippedEmotes[tonumber(args[3])] = goodtext
+            local Humanoid = LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription
+            Caches:ChangeEmote(Humanoid, args[3], CorrectText)
 
-            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEmotes(Emotes)
-            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
-            CreateMessage("Changed ".. args[3] .." To '"..goodtext.."'!", "Success")
+            Message:Send("Changed ".. args[3] .." To '"..CorrectText.."'!", "Success")
+        end)
+    end;
+
+    ['play'] = function(args, msg)
+        msg:gsub('(%a*)%d(.*)', function(Text1, Text2)
+            CorrectText = Text1:sub(2)
+
+            if not table.find(EmoteChoices, CorrectText) then
+                Message:Send("Failed to Find '".. CorrectText .."'!", "Failed")
+                return
+            end
+
+            LocalPlayer.Character:WaitForChild("Humanoid"):PlayEmote(CorrectText)
+
+            Message:Send("Played ".. CorrectText .."!", "Success")
         end)
     end;
 
     ["help"] = function()
-        CreateMessage("Check console (F9) for Emote Names!", "Info")
+        Message:Send("Check console (F9) for Emote Names! (or Syn Console)", "Info")
+        warn([[
+            Animation Changer finay#1197
+
+            Usage:
+
+            /e replace [Number on Emotes Wheel] [Emote name]
+            Ex: /e replace 3 Tree
+
+            /e play [Emote name]
+            Ex: /e replace Shrug
+
+            /e save -- Saves your current emote wheel 
+
+            /e load -- Loads your save
+
+            /e autoload [boolen] (true or false) -- will auto load your save every time you reset
+        ]])
+
         table.foreach(EmoteChoices, print)
     end;
 
+
     ["save"] = function()
         if isfolder("Emote-System") then
-            writefile("Emote-System/EmoteSave.txt", game:service'HttpService':JSONEncode(EquippedEmotes))
+            writefile("Emote-System/EmoteSave.txt", HttpService:JSONEncode(EquippedEmotes))
         else
             makefolder("Emote-System")
-            writefile("Emote-System/EmoteSave.txt", game:service'HttpService':JSONEncode(EquippedEmotes))
+            writefile("Emote-System/EmoteSave.txt", HttpService:JSONEncode(EquippedEmotes))
             writefile("Emote-System/AutoLoad.txt", "true")
         end
 
-        CreateMessage("Saved current equipped emotes!", "Success")
+        Message:Send("Saved current equipped emotes!", "Success")
     end;
 
     ["load"] = function()
-        EquippedEmotes = game:service'HttpService':JSONDecode(readfile("Emote-System/EmoteSave.txt"))
+        EquippedEmotes = HttpService:JSONDecode(readfile("Emote-System/EmoteSave.txt"))
         game.Players.LocalPlayer.Character:WaitForChild("Humanoid").HumanoidDescription:SetEquippedEmotes(EquippedEmotes)
-        CreateMessage("Loaded last save!", "Success")
+
+        Message:Send("Loaded last save!", "Success")
     end;
 
     ["autoload"] = function(args)
 
-        if readfile("Emote-System/AutoLoad.txt") == "true" then
-            writefile("Emote-System/AutoLoad.txt", "false")
-            CreateMessage("Set AutoLoad to False!", "Success")
-        else
-            writefile("Emote-System/AutoLoad.txt", "true")
-            CreateMessage("Set AutoLoad to True!", "Success")
-        end
+        writefile('Emote-System/AutoLoad.txt', tostring(args[3]))
+        Message:Send("Set AutoLoad to"..args[3], "Success")
+    end;
+
+    ['refresh'] = function()
+        CharacterLoaded(LocalPlayer.Character)
+
+        Message:Send("Refreshed!", "Success")
     end
 }
 
+local ChatArgs, Command;
+LocalPlayer.Chatted:Connect(function(Message)
+    ChatArgs = string.split(Message, " ")
 
-game.Players.LocalPlayer.Chatted:Connect(function(msg)
-    local args = string.split(msg, " ")
-    if args[1] == "/e" then
-        Commands[string.lower(args[2])](args, msg)
+    if ChatArgs[1] == "/e" then
+        Command = Commands[string.lower(ChatArgs[2])]
+        
+        if Command then
+            Command(ChatArgs, Message)
+        end
     end
 end)
 
@@ -118,3 +203,10 @@ old = hookfunction(m.SendSystemMessageToSelf, function(self, msg, ...)
 	end
 	return old(self, msg, ...)
 end)
+
+
+if LocalPlayer.Character then
+    CharacterLoaded(LocalPlayer.Character)
+end
+
+LocalPlayer.CharacterAdded:Connect(CharacterLoaded)
