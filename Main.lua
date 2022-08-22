@@ -1,3 +1,4 @@
+
 repeat task.wait() until game:GetService("Players").LocalPlayer
 if not game:GetService("StarterPlayer").UserEmotesEnabled then return end
 
@@ -5,6 +6,7 @@ local HttpService = game:GetService("HttpService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
 local Emotes, EmoteChoices, RealNames = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
+
 local EquippedEmotes = {
     {Slot = 1, Name = ""},
     {Slot = 2, Name = ""},
@@ -111,18 +113,18 @@ local Commands = {
     end;
 
     ['play'] = function(args, msg)
-        msg:gsub('(%a*)%d(.*)', function(Text1, Text2)
-            CorrectText = Text1:sub(2)
+        local Splited = string.split(msg, string.lower(args[2]))[2]
+        local Humanoid = LocalPlayer.Character:WaitForChild("Humanoid")
+        local EmoteText = string.gsub(Splited, "^%s*", "")
 
-            if not table.find(EmoteChoices, CorrectText) then
-                Message:Send("Failed to Find '".. CorrectText .."'!", "Failed")
-                return
-            end
+        if not table.find(EmoteChoices, EmoteText) then
+            Message:Send("Failed to Find '".. EmoteText .."'!", "Failed")
+            return
+        end
 
-            LocalPlayer.Character:WaitForChild("Humanoid"):PlayEmote(CorrectText)
+        Humanoid:PlayEmote(EmoteText)
 
-            Message:Send("Played ".. CorrectText .."!", "Success")
-        end)
+        Message:Send("Played ".. EmoteText .."!", "Success")
     end;
 
     ["help"] = function()
@@ -142,7 +144,11 @@ local Commands = {
 
             /e load -- Loads your save
 
+            /e help -- prints out all emotes
+
             /e autoload [boolen] (true or false) -- will auto load your save every time you reset
+
+            /e refresh -- refreshes emote wheel
         ]])
 
         table.foreach(EmoteChoices, print)
@@ -171,7 +177,7 @@ local Commands = {
     ["autoload"] = function(args)
 
         writefile('Emote-System/AutoLoad.txt', tostring(args[3]))
-        Message:Send("Set AutoLoad to"..args[3], "Success")
+        Message:Send("Set AutoLoad to "..args[3], "Success")
     end;
 
     ['refresh'] = function()
