@@ -1,24 +1,45 @@
+
+
 local cursor = ''
 local emotesTable = {}
 
-while true do
-    local requestString = ('https://catalog.roblox.com/v1/search/items/details?Category=%s&Subcategory=%s&IncludeNotForSale=true&Limit=30&Cursor=%s'):format(
-        game:GetService('HttpService'):JSONDecode(game:HttpGet('https://catalog.roblox.com/v1/categories')).AvatarAnimations, game:GetService('HttpService'):JSONDecode(game:HttpGet('https://catalog.roblox.com/v1/subcategories')).EmoteAnimations, cursor
-    )
-    local response = game:GetService('HttpService'):JSONDecode(game:HttpGet(requestString))
-    cursor = response.nextPageCursor
+local HttpService = game:GetService("HttpService")
+local HttpGet = game.HttpGet
+local JSONDecode = HttpService.JSONDecode
+local tableinsert = table.insert
+local stringformat = string.format
+
+local response;
+local requestString;
+
+function thingy()
+
     
+    requestString = stringformat('https://catalog.roblox.com/v1/search/items/details?Category=%s&Subcategory=%s&IncludeNotForSale=true&Limit=30&Cursor=%s',
+        JSONDecode(HttpService, HttpGet(game, 'https://catalog.roblox.com/v1/categories')).AvatarAnimations, JSONDecode(HttpService, HttpGet(game, 'https://catalog.roblox.com/v1/subcategories')).EmoteAnimations, cursor
+    )
+    
+    --requestString = ('https://catalog.roblox.com/v1/search/items/details?Category=%s&Subcategory=%s&IncludeNotForSale=true&Limit=30&Cursor=%s'):format(
+        --JSONDecode(HttpService, HttpGet(game, 'https://catalog.roblox.com/v1/categories')).AvatarAnimations, JSONDecode(HttpService, HttpGet(game, 'https://catalog.roblox.com/v1/subcategories')).EmoteAnimations, cursor
+    --)
+
+    response = JSONDecode(HttpService,HttpGet(game, requestString))
+    cursor = response.nextPageCursor
+
     for _, data in ipairs(response.data) do
-        table.insert(emotesTable, {
-            data.name,
-            data.id
-        })
+        emotesTable[#emotesTable + 1] = {data.name, data.id}
+        _, data = nil;
     end
 
-    if not cursor then
-        break
+
+
+    if cursor then
+        thingy()
     end
 end
+
+thingy()
+
 
 table.sort(emotesTable, function(a, b)
     return a[1] < b[1]
@@ -55,6 +76,5 @@ for _, emote in ipairs(emotesTable) do
     
     RealNames[emote[1]] = {emote[2]}
 end
-
 
 return RobloxEmotes, EmoteChoices, RealNames
