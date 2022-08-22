@@ -70,24 +70,38 @@ function Caches:ChangeEmote(Humanoid, Pos, Emoticon)
 end
 
 
-local AutoLoad, SettingsEmotes, Humanoid;
+function Caches:FindHumanoidDescription(Humanoid)
+    if not Humanoid then return end
+
+    local Success, Err = pcall(function()
+        local Fake = Humanoid.HumanoidDescription
+    end)
+
+    if Err then return false end
+        
+    return Humanoid.HumanoidDescription 
+end
+
+
+local AutoLoad, SettingsEmotes, Humanoid, HumanoidDescription;
 local function CharacterLoaded(Character)
     AutoLoad, SettingsEmotes = Caches:CheckSettings()
 
     Humanoid = Character:WaitForChild("Humanoid")
+    HumanoidDescription = Caches:FindHumanoidDescription(Humanoid)
     
     if Autoload then
         EquippedEmotes = SettingsEmotes
         Message:Send("Autoloaded saved emotes!", "Success")
     else
-        if Humanoid['HumanoidDescription'] then
-            EquippedEmotes = Humanoid.HumanoidDescription:GetEquippedEmotes()
+        if HumanoidDescription then
+            EquippedEmotes = HumanoidDescription:GetEquippedEmotes()
         end
     end
     
-    if Humanoid['HumanoidDescription'] then
+    if HumanoidDescription then
         for _,v in pairs(EquippedEmotes) do
-            Caches:ChangeEmote(Humanoid.HumanoidDescription, v.Slot, v.Name)
+            Caches:ChangeEmote(HumanoidDescription, v.Slot, v.Name)
             _,v = nil;
         end
     end
