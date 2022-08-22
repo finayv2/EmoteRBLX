@@ -29,6 +29,9 @@ Put main script in autoexe
 loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Main.lua'))();
 ```
 
+
+IGNORE BELOW UNLESS YOU ARE A TRUE SCRIPTER (GANGSTER)
+
 API Emote
 ```Lua
 local Emotes, EmoteChoices = loadstring(game:HttpGet('https://raw.githubusercontent.com/finayv2/EmoteRBLX/main/Emotes.lua'))();
