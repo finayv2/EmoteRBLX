@@ -88,21 +88,24 @@ local function CharacterLoaded(Character)
     AutoLoad, SettingsEmotes = Caches:CheckSettings()
 
     Humanoid = Character:WaitForChild("Humanoid")
-    HumanoidDescription = Caches:FindHumanoidDescription(Humanoid)
-    
-    if Autoload then
-        EquippedEmotes = SettingsEmotes
-        Message:Send("Autoloaded saved emotes!", "Success")
-    else
-        if HumanoidDescription then
-            EquippedEmotes = HumanoidDescription:GetEquippedEmotes()
+
+    if (Humanoid.RigType ~= Enum.HumanoidRigType.R6) then
+        HumanoidDescription = Caches:FindHumanoidDescription(Humanoid)
+        
+        if Autoload and HumanoidDescription then
+            EquippedEmotes = SettingsEmotes
+            Message:Send("Autoloaded saved emotes!", "Success")
+        else
+            if HumanoidDescription then
+                EquippedEmotes = HumanoidDescription:GetEquippedEmotes()
+            end
         end
-    end
-    
-    if HumanoidDescription then
-        for _,v in pairs(EquippedEmotes) do
-            Caches:ChangeEmote(HumanoidDescription, v.Slot, v.Name)
-            _,v = nil;
+        
+        if HumanoidDescription then
+            for _,v in pairs(EquippedEmotes) do
+                Caches:ChangeEmote(HumanoidDescription, v.Slot, v.Name)
+                _,v = nil;
+            end
         end
     end
 end
